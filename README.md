@@ -1,4 +1,3 @@
-# DataScienceProjects
+# Data Science Projects
 
-## Predicting Success of bank marketing campaign
 
