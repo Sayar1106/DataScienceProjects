@@ -1,0 +1,97 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(DMwR)
+library(caret)
+library(C50)
+```
+
+```{r}
+bank<-read.csv('/Users/Banner/Desktop/Data Science Projects/bank-additional/bank-additional-full.csv', header = T, sep = ";")
+
+bank<-subset(x = bank, select = -duration)
+
+```
+
+```{r}
+
+str(bank)
+
+summary(bank)
+
+```
+
+```{r}
+sum(is.na(bank))
+```
+
+```{r}
+head(bank)
+
+tail(bank)
+```
+
+```{r}
+cat_attr<-colnames(bank[,sapply(bank,is.factor)])
+
+num_attr<-colnames(setdiff(x = bank, y = bank[,cat_attr]))
+```
+
+```{r}
+set.seed(123)
+train_rows<-createDataPartition(y = bank$y, p = 0.7, list = F)
+
+train_data<-bank[train_rows,]
+
+test_data<-bank[-train_rows,]
+```
+
+```{r}
+modelLookup('glm')
+```
+
+
+```{r}
+std_model<-preProcess(x = train_data[,num_attr], method = c("center","scale"))
+
+
+train_data<-predict(object = std_model, newdata = train_data)
+test_data<-predict(object = std_model, newdata = test_data)
+
+```
+
+### Training the logistic regression model
+
+```{r}
+control_param<-trainControl(method = "none", classProbs = T)
+log_model<-train(y~.,data = train_data, method = "C5.0Rules", trControl = control_param, metric = "accuracy")
+
+log_model$finalModel
+```
+
+```{r}
+train_preds<-predict(object = log_model, type = "raw")
+
+confusionMatrix(train_preds,train_data$y)
+```
+
+```{r}
+test_preds<-predict(object = log_model, newdata = test_data,type = "raw")
+
+confusionMatrix(test_preds,test_data$y)
+```
+```{r}
+log_model
+```
+```{r}
+table(train_data$loan)
+
+
+```
+
+```{r}
+
+```
