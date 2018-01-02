@@ -5,6 +5,8 @@ output:
   html_notebook: default
 ---
 
+### Loading Libraries
+
 ```{r}
 
 library(DMwR)
@@ -12,6 +14,7 @@ library(caret)
 library(C50)
 
 ```
+### Reading in the data
 
 ```{r}
 
@@ -20,6 +23,8 @@ bank<-read.csv('/Users/Banner/Desktop/Data Science Projects/bank-additional/bank
 bank<-subset(x = bank, select = -duration)
 
 ```
+
+### Exploratory Data Analysis
 
 ```{r}
 
@@ -35,6 +40,7 @@ sum(is.na(bank))
 
 ```
 
+
 ```{r}
 
 head(bank)
@@ -43,6 +49,8 @@ tail(bank)
 
 ```
 
+### Converting into factor
+
 ```{r}
 
 cat_attr<-colnames(bank[,sapply(bank,is.factor)])
@@ -50,6 +58,8 @@ cat_attr<-colnames(bank[,sapply(bank,is.factor)])
 num_attr<-colnames(setdiff(x = bank, y = bank[,cat_attr]))
 
 ```
+
+### Train-Test split
 
 ```{r}
 
@@ -66,6 +76,7 @@ test_data<-bank[-train_rows,]
 modelLookup('glm')
 ```
 
+### Center and Scale
 
 ```{r}
 
@@ -89,6 +100,8 @@ log_model$finalModel
 
 ```
 
+#### Predicting log_model on train data
+
 ```{r}
 
 log_train_preds<-predict(object = log_model, type = "raw")
@@ -96,6 +109,8 @@ log_train_preds<-predict(object = log_model, type = "raw")
 confusionMatrix(log_train_preds,train_data$y)
 
 ```
+
+####  Predicting log_model on test data
 
 ```{r}
 
@@ -105,15 +120,19 @@ confusionMatrix(log_test_preds,test_data$y)
 
 ```
 
+#### Checking for variable importance
+
 ```{r}
 
 colnames(train_data)
 varImp(object = log_model)
 
 ```
+
 ```{r}
 table(train_data$loan)
 ```
+
 ### Random Forest model
 
 ```{r}
@@ -123,6 +142,9 @@ rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param,
 rf_model$finalModel
 
 ```
+
+#### Predicting rf_model on train data
+
 ```{r}
 
 train_preds<-predict(object = log_model, type = "raw")
@@ -130,6 +152,8 @@ train_preds<-predict(object = log_model, type = "raw")
 confusionMatrix(train_preds,train_data$y)
 
 ```
+
+#### Predicting rf_model on test data
 
 ```{r}
 
@@ -139,5 +163,9 @@ confusionMatrix(rf_test_preds,test_data$y)
 
 ```
 
+### Knn Model
 
+```{r}
+
+```
 
