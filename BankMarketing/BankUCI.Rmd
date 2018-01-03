@@ -202,7 +202,7 @@ summary(cart_model)
 
 cart_train_preds<-predict(object = cart_model,type = "class")
 
-confusionMatrix(data = cart_train_preds,train_data$y)
+confusionMatrix(data = cart_train_preds,train_data$y, positive = "yes")
 
 ```
 
@@ -212,7 +212,53 @@ confusionMatrix(data = cart_train_preds,train_data$y)
 
 cart_test_preds<-predict(object = cart_model,newdata = test_data, type = "class")
 
-confusionMatrix(data = cart_test_preds,test_data$y)
+confusionMatrix(data = cart_test_preds,test_data$y, positive = "yes")
+
+```
+### Combine all preds
+
+```{r}
+
+train_preds_all_models<-data.frame(CART = cart_train_preds, GLM = log_train_preds, KNN = knn_train_preds)
+
+test_preds_all_models<-data.frame(CART = cart_test_preds, GLM = log_test_preds, KNN = knn_test_preds)
+```
+
+### Add original target to all preds
+
+```{r}
+
+train_preds_all_models<-cbind(train_preds_all_models, y = train_data$y)
+
+test_preds_all_models<-cbind(test_preds_all_models, y = test_data$y)
+```
+
+### Ensemble model (Stacking)
+
+```{r}
+ensemble_model<-glm(y~. ,data = train_preds_all_models, family = "binomial")
+
+summary(ensemble_model)
+```
+
+### Predicting on train_data
+
+```{r}
+
+ensemble_train_preds<-predict(ensemble_model, train_preds_all_models, type = "response")
+
+ensemble_train_preds<-ifelse(ensemble_train_preds>0.5,"yes","no")
+confusionMatrix(ensemble_train_preds,train_preds_all_models$y)
+
+```
+### Predicting on test_data
+
+```{r}
+
+ensemble_test_preds<-predict(ensemble_model, test_preds_all_models, type = "response")
+
+ensemble_test_preds<-ifelse(ensemble_test_preds>0.5,"yes","no")
+confusionMatrix(ensemble_test_preds,test_preds_all_models$y, positive = "yes")
 
 ```
 
