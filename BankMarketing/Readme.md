@@ -12,6 +12,8 @@
 ### Algorithms used
   * Logistic Regression
   * Random Forests
+  * Decision Trees
+  * K Nearest-Neighbours
 ### Links
   * Dataset
     * https://archive.ics.uci.edu/ml/datasets/bank+marketing
