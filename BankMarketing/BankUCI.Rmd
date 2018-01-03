@@ -12,7 +12,7 @@ output:
 library(DMwR)
 library(caret)
 library(C50)
-
+library(rpart)
 ```
 ### Reading in the data
 
@@ -92,11 +92,9 @@ test_data<-predict(object = std_model, newdata = test_data)
 
 ```{r}
 
-control_param<-trainControl(method = "none", classProbs = T)
+log_model<-glm(y~.,data = train_data, family = "binomial")
 
-log_model<-train(y~.,data = train_data, method = "glm", trControl = control_param, metric = "accuracy", family = "binomial")
-
-log_model$finalModel
+summary(log_model)
 
 ```
 
@@ -104,9 +102,11 @@ log_model$finalModel
 
 ```{r}
 
-log_train_preds<-predict(object = log_model, type = "raw")
+log_train_preds<-predict(object = log_model, type = "response")
 
-confusionMatrix(log_train_preds,train_data$y)
+log_train_preds<-ifelse(log_train_preds>0.5,"yes","no")
+
+confusionMatrix(log_train_preds,train_data$y,positive = "yes")
 
 ```
 
@@ -114,9 +114,11 @@ confusionMatrix(log_train_preds,train_data$y)
 
 ```{r}
 
-log_test_preds<-predict(object = log_model, newdata = test_data,type = "raw")
+log_test_preds<-predict(object = log_model, newdata = test_data,type = "response")
 
-confusionMatrix(log_test_preds,test_data$y)
+log_test_preds<-ifelse(log_test_preds>0.5, "yes", "no")
+
+confusionMatrix(log_test_preds,test_data$y,positive = "yes")
 
 ```
 
@@ -137,6 +139,8 @@ table(train_data$loan)
 
 ```{r}
 
+control_param<-trainControl(method = "none", classProbs = T)
+
 rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "accuracy", family = "binomial")
 
 rf_model$finalModel
@@ -147,7 +151,7 @@ rf_model$finalModel
 
 ```{r}
 
-train_preds<-predict(object = log_model, type = "raw")
+rf_train_preds<-predict(object = log_model, type = "raw")
 
 confusionMatrix(train_preds,train_data$y)
 
@@ -157,7 +161,7 @@ confusionMatrix(train_preds,train_data$y)
 
 ```{r}
 
-rf_test_preds<-predict(object = rf_model, newdata = test_data,type = "raw")
+rf_test_preds<-predict(object = rf_model, newdata = test_data, type = "raw")
 
 confusionMatrix(rf_test_preds,test_data$y)
 
@@ -166,6 +170,49 @@ confusionMatrix(rf_test_preds,test_data$y)
 ### Knn Model
 
 ```{r}
+
+knn_model<-train(y~.,data = train_data, method = "knn", trControl = control_param, metric = "accuracy")
+
+```
+
+#### Predicting knn_model on train data
+
+```{r}
+knn_train_preds<-predict(object = knn_model, type = "raw")
+
+confusionMatrix(knn_train_preds,train_data$y, positive = "yes")
+```
+#### Predicting knn_model on test data
+
+```{r}
+knn_test_preds<-predict(object = knn_model, newdata = test_data, type = "raw")
+
+confusionMatrix(knn_test_preds,test_data$y, positive = "yes")
+```
+### CART Decision Tree model
+
+```{r}
+cart_model<-rpart(y~.,data = train_data, method = "class")
+summary(cart_model)
+```
+
+### Predicting on train_data
+
+```{r}
+
+cart_train_preds<-predict(object = cart_model,type = "class")
+
+confusionMatrix(data = cart_train_preds,train_data$y)
+
+```
+
+### Predicting on test_data
+
+```{r}
+
+cart_test_preds<-predict(object = cart_model,newdata = test_data, type = "class")
+
+confusionMatrix(data = cart_test_preds,test_data$y)
 
 ```
 
