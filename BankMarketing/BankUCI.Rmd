@@ -8,20 +8,21 @@ output:
 ### Loading Libraries
 
 ```{r}
-
+library(doMC)
 library(DMwR)
 library(caret)
 library(C50)
 library(rpart)
 library(ROCR)
 ```
+
 ### Reading in the data
 
 ```{r}
 
 bank<-read.csv('/Users/Banner/Desktop/Data Science Projects/bank-additional/bank-additional-full.csv', header = T, sep = ";")
 
-bank<-subset(x = bank, select = -c(duration,default))
+
 
 ```
 
@@ -48,8 +49,7 @@ head(bank)
 
 tail(bank)
 
-table(bank$educatio,bank$y)
-table(bank$previous)
+
 ```
 
 ### Converting into factor
@@ -156,7 +156,9 @@ table(train_data$loan)
 
 ```{r}
 
-control_param<-trainControl(method = "none", classProbs = T)
+registerDoMC(cores = 4)
+
+control_param<-trainControl(method = "none", classProbs = T, number = 10, repeats = 5, allowParallel = T, verboseIter = T)
 
 rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "accuracy", family = "binomial")
 
@@ -168,9 +170,9 @@ rf_model$finalModel
 
 ```{r}
 
-rf_train_preds<-predict(object = log_model, type = "raw")
+rf_train_preds<-predict(object = rf_model, type = "raw")
 
-confusionMatrix(train_preds,train_data$y)
+confusionMatrix(rf_train_preds,train_data$y)
 
 ```
 
@@ -178,9 +180,10 @@ confusionMatrix(train_preds,train_data$y)
 
 ```{r}
 
-rf_test_preds<-predict(object = rf_model, newdata = test_data, type = "raw")
-
-confusionMatrix(rf_test_preds,test_data$y)
+rf_test_preds<-predict(object = rf_model, newdata = test_data, type = "prob")
+rf_test_preds<-ifelse(rf_test_preds[,2]>0.3,"yes","no")
+conf_mat<-confusionMatrix(rf_test_preds,test_data$y,positive = "yes")
+conf_mat
 
 ```
 
@@ -282,10 +285,11 @@ ensemble_test_preds<-ifelse(ensemble_test_preds>0.5,"yes","no")
 confusionMatrix(ensemble_test_preds,test_preds_all_models$y, positive = "yes")
 
 ```
+
 ```{r}
 
-pred <- prediction(predictions = knn_test_preds[,2], labels = test_data$y)
-
+pred <- prediction(predictions = rf_test_preds[,2], labels = test_data$y)
+rf_test_preds
 perf <- performance(pred, measure="tpr", x.measure="fpr")
 
 plot(perf, col=rainbow(10), colorize=T, print.cutoffs.at=seq(0,1,0.05))
@@ -299,3 +303,4 @@ auc <- perf_auc@y.values[[1]]
 print(auc)
 
 ```
+
