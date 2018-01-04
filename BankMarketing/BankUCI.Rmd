@@ -14,6 +14,8 @@ library(caret)
 library(C50)
 library(rpart)
 library(ROCR)
+library(xgboost)
+library(dummies)
 ```
 
 ### Reading in the data
@@ -96,8 +98,9 @@ test_data<-predict(object = std_model, newdata = test_data)
 ### Upsampling the data
 
 ```{r}
-
-up_train <- upSample(x = train_data[,-ncol(train_data)], y = train_data$y)                         
+set.seed(123)
+up_train <- SMOTE(y~.,data = train_data, perc.over = 800, perc.under = 300)
+table(up_train$y)
 up_train$y<-up_train$Class
 up_train$Class<-NULL
 
@@ -156,11 +159,13 @@ table(train_data$loan)
 
 ```{r}
 
+set.seed(123)
+
 registerDoMC(cores = 4)
 
 control_param<-trainControl(method = "none", classProbs = T, number = 10, repeats = 5, allowParallel = T, verboseIter = T)
 
-rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "accuracy", family = "binomial")
+rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "F1score", family = "binomial")
 
 rf_model$finalModel
 
@@ -184,7 +189,7 @@ rf_test_preds<-predict(object = rf_model, newdata = test_data, type = "prob")
 rf_test_preds<-ifelse(rf_test_preds[,2]>0.3,"yes","no")
 conf_mat<-confusionMatrix(rf_test_preds,test_data$y,positive = "yes")
 conf_mat
-
+table(test_data$y)
 ```
 
 ### Knn Model
@@ -285,6 +290,8 @@ ensemble_test_preds<-ifelse(ensemble_test_preds>0.5,"yes","no")
 confusionMatrix(ensemble_test_preds,test_preds_all_models$y, positive = "yes")
 
 ```
+
+### Plotting ROC curve
 
 ```{r}
 

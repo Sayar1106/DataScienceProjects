@@ -1,0 +1,73 @@
+---
+title: "BankUCIViz"
+author: "Sayar Banerjee"
+date: "1/4/2018"
+output: html_document
+---
+### Load libraries
+
+```{r}
+
+library(tidyverse)
+
+```
+### Reading in the data
+
+```{r}
+
+bank<-read.csv('/Users/Banner/Desktop/Data Science Projects/bank-additional/bank-additional-full.csv', header = T, sep = ";")
+
+
+
+```
+
+### Exploratory Data Analysis
+
+```{r}
+
+str(bank)
+
+summary(bank)
+
+```
+
+```{r}
+
+sum(is.na(bank))
+
+```
+
+
+```{r}
+
+head(bank)
+
+tail(bank)
+
+
+```
+
+### Converting into factor
+
+```{r}
+
+cat_attr<-colnames(bank[,sapply(bank,is.factor)])
+
+num_attr<-setdiff(x = colnames(bank), y = cat_attr)
+
+cat_attr<-cat_attr[-11]
+
+```
+
+## Vizualizations
+
+```{r}
+?keep
+bank %>% 
+  gather(cat_attr, key = "var", value = "value") %>%
+  ggplot(aes(x=value))+
+  geom_bar(mapping = aes(fill=y)) +
+  facet_wrap(~var,scales="free")+
+  coord_flip()
+
+```
