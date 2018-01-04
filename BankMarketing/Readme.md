@@ -12,7 +12,7 @@
 ### Algorithms used
   * Logistic Regression
   * Random Forests
-  * Decision Trees
+  * Decision Trees (CART)
   * K Nearest-Neighbours
 ### Links
   * Dataset
