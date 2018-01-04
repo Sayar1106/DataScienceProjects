@@ -14,6 +14,7 @@
   * Random Forests
   * Decision Trees (CART)
   * K Nearest-Neighbours
+  * Stacking Ensemble
 ### Links
   * Dataset
     * https://archive.ics.uci.edu/ml/datasets/bank+marketing
