@@ -8,6 +8,7 @@ output:
 ### Loading Libraries
 
 ```{r}
+
 library(doMC)
 library(DMwR)
 library(caret)
@@ -16,6 +17,7 @@ library(rpart)
 library(ROCR)
 library(xgboost)
 library(dummies)
+
 ```
 
 ### Reading in the data
@@ -74,12 +76,6 @@ train_rows<-createDataPartition(y = bank$y, p = 0.7, list = F)
 train_data<-bank[train_rows,]
 
 test_data<-bank[-train_rows,]
-
-```
-
-```{r}
-
-modelLookup('glm')
 
 ```
 
@@ -165,7 +161,7 @@ registerDoMC(cores = 4)
 
 control_param<-trainControl(method = "none", classProbs = T, number = 10, repeats = 5, allowParallel = T, verboseIter = T)
 
-rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "F1score", family = "binomial")
+rf_model<-train(y~.,data = train_data, method = "rf", trControl = control_param, metric = "Accuracy", family = "binomial")
 
 rf_model$finalModel
 
@@ -186,10 +182,14 @@ confusionMatrix(rf_train_preds,train_data$y)
 ```{r}
 
 rf_test_preds<-predict(object = rf_model, newdata = test_data, type = "prob")
+
 rf_test_preds<-ifelse(rf_test_preds[,2]>0.3,"yes","no")
+
 conf_mat<-confusionMatrix(rf_test_preds,test_data$y,positive = "yes")
 conf_mat
+
 table(test_data$y)
+
 ```
 
 ### Knn Model
@@ -203,9 +203,11 @@ knn_model<-train(y~.,data = up_train, method = "knn", trControl = control_param,
 #### Predicting knn_model on train data
 
 ```{r}
+
 knn_train_preds<-predict(object = knn_model, type = "prob")
 
 confusionMatrix(knn_train_preds,up_train$y, positive = "yes")
+
 ```
 
 #### Predicting knn_model on test data

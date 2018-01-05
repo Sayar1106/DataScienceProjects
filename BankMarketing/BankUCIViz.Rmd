@@ -9,7 +9,7 @@ output: html_document
 ```{r}
 
 library(tidyverse)
-
+library(ggthemes)
 ```
 ### Reading in the data
 
@@ -62,12 +62,14 @@ cat_attr<-cat_attr[-11]
 ## Vizualizations
 
 ```{r}
-?keep
+
 bank %>% 
   gather(cat_attr, key = "var", value = "value") %>%
   ggplot(aes(x=value))+
   geom_bar(mapping = aes(fill=y)) +
-  facet_wrap(~var,scales="free")+
-  coord_flip()
-
+  facet_wrap(~var,scales="free", nrow = 2, ncol = 5)+
+  coord_flip() +
+  theme_few()
+  
+ggsave(filename = "BankUCIViz", device = "png", width = 16, height = 9)
 ```
