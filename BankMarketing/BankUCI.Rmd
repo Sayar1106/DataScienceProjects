@@ -171,8 +171,8 @@ rf_model$finalModel
 
 ```{r}
 
-rf_train_preds<-predict(object = rf_model, type = "raw")
-
+rf_train_preds<-predict(object = rf_model, type = "prob")
+rf_train_preds
 confusionMatrix(rf_train_preds,train_data$y)
 
 ```
@@ -189,6 +189,8 @@ conf_mat<-confusionMatrix(rf_test_preds,test_data$y,positive = "yes")
 conf_mat
 
 table(test_data$y)
+
+
 
 ```
 
@@ -297,8 +299,8 @@ confusionMatrix(ensemble_test_preds,test_preds_all_models$y, positive = "yes")
 
 ```{r}
 
-pred <- prediction(predictions = rf_test_preds[,2], labels = test_data$y)
-rf_test_preds
+pred <- prediction(predictions = rf_train_preds[,2], labels = train_data$y)
+
 perf <- performance(pred, measure="tpr", x.measure="fpr")
 
 plot(perf, col=rainbow(10), colorize=T, print.cutoffs.at=seq(0,1,0.05))

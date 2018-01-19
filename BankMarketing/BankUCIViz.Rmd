@@ -61,6 +61,8 @@ cat_attr<-cat_attr[-11]
 
 ## Vizualizations
 
+### Bar plot of all categorical variables
+
 ```{r}
 
 bank %>% 
@@ -72,4 +74,15 @@ bank %>%
   theme_few()
   
 ggsave(filename = "BankUCIViz", device = "png", width = 16, height = 9)
+
+```
+
+### Scatter plot of all numerical variables
+
+```{r}
+
+ggplot(data = bank) +
+  geom_histogram(mapping = aes(x = nr.employed))
+  
+
 ```
